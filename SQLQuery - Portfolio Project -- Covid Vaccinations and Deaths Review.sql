@@ -27,7 +27,7 @@ from CovidDeaths
 order by 1,2
 
 
--- looking at total cases vs total deaths  (likelyhood of dying if you live in US = 1.08%)
+-- looking at total cases vs total deaths  (likelyhood of dying if you live in the US = 1.08%)
 select 
 	location, 
 	date, 
@@ -40,7 +40,7 @@ where location like '%United States%'
 order by 1,2
 
 
--- looking at total cases vs Population  (percent of population has contracted Covid = 29.67%)   likelihood of catching
+-- looking at total cases vs Population  (percent of population has contracted Covid = 29.67%)   likelihood of catching Covid
 select 
 	location, 
 	date, 
@@ -53,6 +53,8 @@ where location = 'United States'
 order by 1,2
 
 
+
+-- Total Deaths by location (Continent)  (Query2 in Power BI)
 select 
 	location, 
 	sum(cast(new_deaths as int)) as TotalDeathCount
@@ -65,8 +67,7 @@ order by TotalDeathCount desc
 
 
 
-
--- looking at Countries with the Highest infection rate compared to population  = Cypress at 70%
+-- looking at Countries with the Highest infection rate vs population  = Cypress at 70%  (Query3 in Power BI)
 select 
 	location, 
 	Population,
@@ -78,7 +79,8 @@ group by location, population, date
 order by PercentPopulationInfected desc
 
 
--- Showing Countries with Highest Death Count per Population  =  US at 1,090,218
+
+-- Showing Countries with Highest Death Count by Population  =  US at 1,090,218
 select 
 	location, 
 --	Population,
@@ -90,20 +92,7 @@ group by location
 order by TotalDeathCount desc
 
 
---- lets break it down by continent
-select 
-	continent, 
---	Population,
-	MAX(cast(total_deaths as int)) as TotalDeathCount 
---	max(total_deaths/population) * 100 as PercentPopulationDeaths
-from CovidDeaths
---where continent is null
-group by continent
-order by TotalDeathCount desc
-
-
-
--- GLOBAL NUMBERS
+-- GLOBAL NUMBERS  Total Cases, Total Deaths, Total Death Percentage by date (Query1 in Power BI)
 select 
 	date, 
 	SUM(new_cases) as total_cases, 
@@ -116,7 +105,17 @@ order by 1,2
 
 
 
--- without date groupings
+--- Death count by continent
+select 
+	continent, 
+	MAX(cast(total_deaths as int)) as TotalDeathCount 
+from CovidDeaths
+group by continent
+order by TotalDeathCount desc
+
+
+-- GLOBAL NUMBERS  Total Cases, Total Deaths, Total Death Percentage without date grouping 
+-- and removing null continents (Query1 in Power BI)
 select 
 	SUM(new_cases) as total_cases, 
 	sum(cast(new_deaths as int)) as total_deaths, 
@@ -126,14 +125,13 @@ where continent is not null
 --group by date
 order by 1,2
 
-
+-- data removing null continents
 select 
 	d.continent,
 	d.location,
 	d.date,
 	d.population,
 	v.new_vaccinations
-
 from CovidDeaths d
 Join CovidVacinations v
 on d.location = v.location
@@ -142,7 +140,7 @@ where d.continent is not null
 order by 1,2,3
 
 
--- add rolling count of new vacinations
+-- add rolling count of new vacinations to table
 select 
 	d.continent,
 	d.location,
@@ -159,7 +157,9 @@ where d.continent is not null
 order by 1,2,3
 
 
----USE CTE
+
+
+--- rolling count of new vacinations but using CTE
 with popVvacs(continent, location, date, population, new_vaccinations, cum_total)
 as (
 select 
@@ -182,7 +182,7 @@ order by 1,2,3
 
 
 
--- Using Temp table
+-- rolling count of new vacinations but using a stored TEMP TABLE
 Drop table if  exists #PercentPopulationVaccinated
 Create table #PercentPopulationVaccinated
 (	continent nvarchar(255),
@@ -211,9 +211,7 @@ select *, (cum_total/population)*100 as cum_pct
 from #PercentPopulationVaccinated
 
 
-
-
----- Creating View to store data for later visualizations
+----  rolling count of new vacinations but using a VIEW
 Create View PercentPopulationVaccinated as
 select 
 	d.continent,
@@ -228,3 +226,8 @@ Join CovidVacinations v
 on d.location = v.location
 and d.date = v.date
 where d.continent is not null
+
+
+select * 
+from PercentPopulationVaccinated
+
