@@ -1,7 +1,7 @@
 # Covid-19 Portfolio Project
 
 1. Data was downloaded from real Covid-19 reporting site
-      --- xxxx
+      --- (https://ourworldindata.org/covid-deaths)
 
 
 2. Dowloaded in multiple .cvs files and imported into Microsoft SQL
