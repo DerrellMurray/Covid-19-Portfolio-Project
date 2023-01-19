@@ -114,8 +114,7 @@ group by continent
 order by TotalDeathCount desc
 
 
--- GLOBAL NUMBERS  Total Cases, Total Deaths, Total Death Percentage without date grouping 
--- and removing null continents (Query1 in Power BI)
+-- GLOBAL NUMBERS  Total Cases, Total Deaths, Total Death Percentage without date grouping  (Query1 in Power BI)
 select 
 	SUM(new_cases) as total_cases, 
 	sum(cast(new_deaths as int)) as total_deaths, 
@@ -125,7 +124,8 @@ where continent is not null
 --group by date
 order by 1,2
 
--- data removing null continents
+
+-- data adding date to sort
 select 
 	d.continent,
 	d.location,
